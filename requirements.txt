@@ -1,4 +1,7 @@
 gradio
+fastapi
+uvicorn
 ultralytics
 Pillow
 numpy
+python-multipart

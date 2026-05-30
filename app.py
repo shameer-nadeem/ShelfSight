@@ -1,7 +1,11 @@
 import gradio as gr
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 from PIL import Image, ImageDraw
 import numpy as np
+import uvicorn
 
 MODEL_PATH  = "model/saad_best.pt"
 OUR_BRAND   = "coca-cola"
@@ -23,14 +27,11 @@ COLORS = {
 
 model = YOLO(MODEL_PATH)
 
-def analyse(image):
-    if image is None:
-        return None, "No image uploaded.", "No image uploaded.", "No image uploaded."
-
-    img_pil = Image.fromarray(image)
+def run_inference(image_array):
+    img_pil = Image.fromarray(image_array)
     img_w, img_h = img_pil.size
 
-    results    = model.predict(source=image, conf=CONF, verbose=False)
+    results    = model.predict(source=image_array, conf=CONF, verbose=False)
     result     = results[0]
     detections = []
 
@@ -58,16 +59,6 @@ def analyse(image):
     brand_count = det_counts.get(OUR_BRAND, 0)
     total_count = sum(det_counts.values())
     sos = (brand_count / total_count * 100) if total_count > 0 else 0.0
-
-    sos_text = f"SHARE OF SHELF\n{'='*35}\n"
-    for name, count in det_counts.items():
-        pct = count / total_count * 100 if total_count > 0 else 0
-        bar = "█" * int(pct / 5)
-        sos_text += f"{name:<15}: {count:>3} facings  {pct:>5.1f}%  {bar}\n"
-    sos_text += f"\n{'='*35}\nCoca-Cola SOS: {sos:.1f}%\n"
-    if sos >= 50:   sos_text += "Status: GOOD"
-    elif sos >= 30: sos_text += "Status: FAIR"
-    else:           sos_text += "Status: POOR"
 
     cell_w = img_w / GRID_COLS
     cell_h = img_h / GRID_ROWS
@@ -108,59 +99,105 @@ def analyse(image):
     elif compliance >= 40: status = "FAIR"
     else:                  status = "POOR"
 
-    comp_text  = f"PLANOGRAM COMPLIANCE\n{'='*35}\n"
-    comp_text += f"Matching cells : {matching_cells}/{total_cells}\n"
-    comp_text += f"Compliance     : {compliance:.1f}%\n"
-    comp_text += f"Status         : {status}\n\n"
-    comp_text += "Reference planogram:\n"
-    for r in range(GRID_ROWS):
-        row_str = " | ".join([(PLANOGRAM[r][c] or "empty")[:10].center(10) for c in range(GRID_COLS)])
-        comp_text += f"  [{row_str}]\n"
-    comp_text += "\nActual shelf:\n"
-    for r in range(GRID_ROWS):
-        row_str = " | ".join([(actual_grid[r][c] or "empty")[:10].center(10) for c in range(GRID_COLS)])
-        comp_text += f"  [{row_str}]\n"
-    if mismatches:
-        comp_text += "\nMismatches:\n"
-        for m in mismatches:
-            comp_text += f"  {m['pos']}: expected '{m['expected']}' found '{m['actual']}'\n"
-
-    reco_text = f"RECOMMENDATIONS\n{'='*35}\n"
+    recommendations = []
     missing_brand = [m for m in mismatches if m["expected"] == OUR_BRAND]
     wrong_product = [m for m in mismatches if m["expected"] != OUR_BRAND and "not detected" not in m["actual"]]
     empty_slots   = [m for m in mismatches if "not detected" in m["actual"]]
-    rec = 1
+
     if missing_brand:
         positions = ", ".join([m["pos"] for m in missing_brand])
         gain = len(missing_brand) / total_cells * 100
-        reco_text += f"{rec}. Add coca-cola at: {positions}\n   Gain: +{gain:.1f}%\n\n"
-        rec += 1
+        recommendations.append({"text": f"Add coca-cola at: {positions}", "gain": gain})
     for m in wrong_product:
-        reco_text += f"{rec}. Replace '{m['actual']}' with '{m['expected']}' at {m['pos']}\n\n"
-        rec += 1
+        recommendations.append({"text": f"Replace '{m['actual']}' with '{m['expected']}' at {m['pos']}", "gain": 1/total_cells*100})
     if empty_slots:
         positions = ", ".join([m["pos"] for m in empty_slots])
-        reco_text += f"{rec}. Fill empty slots at: {positions}\n\n"
-    if not mismatches:
-        reco_text += "Perfect compliance - no changes needed."
-    potential = (matching_cells + len(mismatches)) / total_cells * 100
-    reco_text += f"\nCurrent : {compliance:.1f}%\nAfter fix: {potential:.1f}%\nGain: +{potential-compliance:.1f}%"
+        recommendations.append({"text": f"Fill empty slots at: {positions}", "gain": len(empty_slots)/total_cells*100})
 
-    return img_pil, sos_text, comp_text, reco_text
+    return {
+        "sos":             sos,
+        "detections":      det_counts,
+        "compliance":      compliance,
+        "status":          status,
+        "mismatches":      mismatches,
+        "recommendations": recommendations,
+        "actual_grid":     actual_grid,
+    }
 
 
-with gr.Blocks(title="ShelfSight", theme=gr.themes.Base()) as demo:
-    gr.Markdown("# ShelfSight — AI Shelf Intelligence\n**CSC-233 AI Lab | BNU Spring 2026 | YOLOv8n+Aug | mAP50: 95.06%**\n\nUpload a shelf photo to detect products and calculate Share of Shelf and Planogram Compliance.")
-    with gr.Row():
-        with gr.Column(scale=1):
-            image_input = gr.Image(label="Upload shelf photo", type="numpy")
-            analyse_btn = gr.Button("Analyse Shelf", variant="primary")
-        with gr.Column(scale=1):
-            image_output = gr.Image(label="Detected products")
-    with gr.Row():
-        sos_output  = gr.Textbox(label="Share of Shelf", lines=10)
-        comp_output = gr.Textbox(label="Planogram Compliance", lines=10)
-        reco_output = gr.Textbox(label="Recommendations", lines=10)
-    analyse_btn.click(fn=analyse, inputs=image_input, outputs=[image_output, sos_output, comp_output, reco_output])
+# ── FastAPI app ───────────────────────────────────────────
+app = FastAPI()
 
-demo.launch()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_frontend():
+    with open("frontend/index.html", "r") as f:
+        return HTMLResponse(content=f.read())
+
+@app.post("/analyse")
+async def analyse_endpoint(file: bytes = None):
+    from fastapi import File, UploadFile
+    return JSONResponse({"error": "Use the /analyse POST endpoint with a file"})
+
+# Override with proper file upload
+from fastapi import File, UploadFile
+import io
+
+@app.post("/analyse")
+async def analyse_image(file: UploadFile = File(...)):
+    contents = await file.read()
+    image    = np.array(Image.open(io.BytesIO(contents)).convert("RGB"))
+    result   = run_inference(image)
+    return JSONResponse(content=result)
+
+
+# ── Gradio fallback UI ────────────────────────────────────
+def gradio_analyse(image):
+    if image is None:
+        return None, "No image", "No image", "No image"
+    result = run_inference(image)
+
+    sos_text  = f"Coca-Cola SOS: {result['sos']:.1f}%\n\n"
+    for name, count in result["detections"].items():
+        total = sum(result["detections"].values())
+        pct   = count/total*100 if total > 0 else 0
+        sos_text += f"{name}: {count} facings ({pct:.1f}%)\n"
+
+    comp_text  = f"Compliance: {result['compliance']:.1f}% — {result['status']}\n\n"
+    for m in result["mismatches"]:
+        comp_text += f"{m['pos']}: expected {m['expected']}, found {m['actual']}\n"
+
+    reco_text = ""
+    for i, r in enumerate(result["recommendations"], 1):
+        reco_text += f"{i}. {r['text']}\n"
+        if r.get("gain"):
+            reco_text += f"   Gain: +{r['gain']:.1f}%\n"
+    if not reco_text:
+        reco_text = "Perfect compliance!"
+
+    return image, sos_text, comp_text, reco_text
+
+
+gradio_app = gr.Interface(
+    fn=gradio_analyse,
+    inputs=gr.Image(type="numpy", label="Upload shelf photo"),
+    outputs=[
+        gr.Image(label="Detections"),
+        gr.Textbox(label="Share of Shelf", lines=8),
+        gr.Textbox(label="Planogram Compliance", lines=8),
+        gr.Textbox(label="Recommendations", lines=8),
+    ],
+    title="ShelfSight — AI Shelf Intelligence",
+    description="CSC-233 AI Lab | BNU Spring 2026 | YOLOv8n+Aug | mAP50: 95.06%",
+)
+
+app = gr.mount_gradio_app(app, gradio_app, path="/gradio")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=7860)
