@@ -1,6 +1,6 @@
 # ShelfSight — AI-Based Shelf Intelligence System
 
-> CSC-233 Artificial Intelligence Lab | BNU Spring 2026 | Section B
+> CSC-233 Artificial Intelligence Lab Project 
 
 ---
 
@@ -89,6 +89,7 @@ ShelfSight/
 ## Dataset
 
 - **Source:** Roboflow Universe — soda-bottles-haga dataset
+- **Dataset Link:** https://universe.roboflow.com/rf20-vl/soda-bottles-haga
 - **Size:** 2,249 labeled images
 - **Classes:** coca-cola, fanta, sprite
 - **Format:** YOLOv8 (bounding boxes)
@@ -108,8 +109,5 @@ ShelfSight/
 | Training | Google Colab (T4 GPU) |
 | Version Control | GitHub |
 
----
 
-## Instructor
 
-**Hafiz Muhammad Abubakar** | CSC-233 AI Lab | BNU Spring 2026
