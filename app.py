@@ -140,10 +140,7 @@ async def serve_frontend():
     with open("frontend/index.html", "r") as f:
         return HTMLResponse(content=f.read())
 
-@app.post("/analyse")
-async def analyse_endpoint(file: bytes = None):
-    from fastapi import File, UploadFile
-    return JSONResponse({"error": "Use the /analyse POST endpoint with a file"})
+
 
 # Override with proper file upload
 from fastapi import File, UploadFile
