@@ -30,9 +30,9 @@ ShelfSight is an AI-powered retail shelf analysis system that uses object detect
 |------|-------------|------|
 | Shameer Nadeem (Lead) | F2024-0427 | Project Lead, Model 1 (YOLOv8n), Streamlit UI |
 | Ibrahim Zahid | F2024-0550 | Image Collection, Model 2 (YOLOv8s) |
-| Saad Riaz | F2024- 0543 | Dataset Search, Model 3 (YOLOv8n+Aug) — Winner |
-| Samia Rehan | — | Dataset Search, Model 4 (MobileNet+SSD) |
-| Ayesha Gohar | — | Model 5 (ResNet50), Poster & Standee |
+| Saad Riaz | F2024-0543 | Dataset Search, Model 3 (YOLOv8n+Aug) — Winner |
+| Samia Rehan | F2024-0488| Dataset Search, Model 4 (MobileNet+SSD) |
+| Ayesha Gohar | F2024-0135 | Model 5 (ResNet50), Poster & Standee |
 
 ---
 
@@ -92,7 +92,7 @@ All trained model weights are available for download from the shared Google Driv
 | YOLOv8n | Shameer | 94.61% | 93.79% | 92.68% |
 | YOLOv8s | Ibrahim | 94.61% | 93.79% | 92.68% |
 | **YOLOv8n + Augmentation** | **Saad** | **95.06%** | **94.09%** | **92.91%** |
-| MobileNet+SSD | Samia | — | — | — |
+| MobileNet+SSD | Samia | 47.80% | 10.00% | 43.60% |
 | ResNet50 | Ayesha | 51.20% | 49.20% | 48.60% |
 
 **Winner: Saad's YOLOv8n + Augmentation — 95.06% mAP50**
