@@ -30,7 +30,7 @@ ShelfSight is an AI-powered retail shelf analysis system that uses object detect
 |------|-------------|------|
 | Shameer Nadeem (Lead) | F2024-0427 | Project Lead, Model 1 (YOLOv8n), Streamlit UI |
 | Ibrahim Zahid | F2024-0550 | Image Collection, Model 2 (YOLOv8s) |
-| Saad Riaz | F2024- | Dataset Search, Model 3 (YOLOv8n+Aug) — Winner |
+| Saad Riaz | F2024- 0543 | Dataset Search, Model 3 (YOLOv8n+Aug) — Winner |
 | Samia Rehan | — | Dataset Search, Model 4 (MobileNet+SSD) |
 | Ayesha Gohar | — | Model 5 (ResNet50), Poster & Standee |
 
@@ -114,6 +114,14 @@ All trained model weights are available for download from the shared Google Driv
 
 - **Source:** Roboflow Universe — soda-bottles-haga dataset
 - **Dataset Link:** https://universe.roboflow.com/rf20-vl/soda-bottles-haga
+https://universe.roboflow.com/larc2022-4tijc/coke-c5aa1/images/DrQmTLBvFTiq0MWrR9Gy?queryText=&pageSize=50&startingIndex=0&browseQuery=true
+https://universe.roboflow.com/ashis-jenisharajendran/sprite-aqswq
+https://universe.roboflow.com/smart-vm/coca-cola-16990/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
+https://app.roboflow.com/saad-riaz-fzzs8/fanta-lweui-8vnsg/
+https://universe.roboflow.com/training-5hycg/coca-cola-obpxr/browse
+
+All the datasets were mergered into one 
+
 - **Size:** 2,249 labeled images
 - **Classes:** coca-cola, fanta, sprite
 - **Format:** YOLOv8 (bounding boxes)
