@@ -92,7 +92,7 @@ All trained model weights are available for download from the shared Google Driv
 | YOLOv8n | Shameer | 94.61% | 93.79% | 92.68% |
 | YOLOv8s | Ibrahim | 94.61% | 93.79% | 92.68% |
 | **YOLOv8n + Augmentation** | **Saad** | **95.06%** | **94.09%** | **92.91%** |
-| MobileNet+SSD | Samia | 47.80% | 10.00% | 43.60% |
+| MobileNet+SSD | Samia | 47.80% | 44.00% | 43.60% |
 | ResNet50 | Ayesha | 51.20% | 49.20% | 48.60% |
 
 **Winner: Saad's YOLOv8n + Augmentation — 95.06% mAP50**
