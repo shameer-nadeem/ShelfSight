@@ -113,7 +113,9 @@ All trained model weights are available for download from the shared Google Driv
 ## Dataset
 
 - **Source:** Roboflow Universe — soda-bottles-haga dataset
-- **Dataset Link:** https://universe.roboflow.com/rf20-vl/soda-bottles-haga
+- **Dataset Link:** https://app.roboflow.com/shelfsight-qbkpe/shelfsight-ikqmc/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
+- **Dataset Reference Links:**
+https://universe.roboflow.com/rf20-vl/soda-bottles-haga
 https://universe.roboflow.com/larc2022-4tijc/coke-c5aa1/images/DrQmTLBvFTiq0MWrR9Gy?queryText=&pageSize=50&startingIndex=0&browseQuery=true
 https://universe.roboflow.com/ashis-jenisharajendran/sprite-aqswq
 https://universe.roboflow.com/smart-vm/coca-cola-16990/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
