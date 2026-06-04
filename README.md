@@ -8,7 +8,7 @@
 
 | Link | Description |
 |------|-------------|
-| [**Live App**](https://shameer-nadeem-shelfsight.hf.space) | Hosted on Hugging Face Spaces |
+| [**Live App**](https://shameer-nadeem-shelfsight2-0.hf.space/) | Hosted on Hugging Face Spaces |
 | [**Frontend UI**](https://shameer-nadeem.github.io/ShelfSight) | Hosted on GitHub Pages |
 
 ---
